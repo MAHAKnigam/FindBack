@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { ArrowRight, Search, ShieldCheck, MapPin, Clock3, HeartHandshake, PackageSearch } from "lucide-react";
+import AuthForm from "./components/AuthForm";
 
 const steps = [
   { number: "01", title: "Report an item", description: "Share a few details when something goes missing or when you find an item." },
@@ -13,8 +15,25 @@ const features = [
 ];
 
 function App() {
+  const [authOpen, setAuthOpen] = useState(false);
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#f7f9fc] text-[#17243b]">
+      {authOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/50 p-4">
+          <div className="relative my-auto w-full max-w-md">
+            <button
+              type="button"
+              onClick={() => setAuthOpen(false)}
+              aria-label="Close sign in"
+              className="absolute -right-2 -top-12 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow"
+            >
+              Close
+            </button>
+            <AuthForm />
+          </div>
+        </div>
+      )}
       <header className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-5 lg:px-10">
         <a href="#" className="flex items-center gap-2.5 font-bold tracking-tight text-xl">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#173b68] text-white"><PackageSearch size={22} /></span>
@@ -25,8 +44,8 @@ function App() {
           <a className="transition hover:text-[#173b68]" href="#features">Why FindBack</a>
         </nav>
         <div className="flex items-center gap-3">
-          <button className="hidden rounded-full px-4 py-2 text-sm font-semibold text-[#173b68] hover:bg-blue-50 sm:inline-flex">Log in</button>
-          <button className="rounded-full bg-[#173b68] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#102d52]">Get started <ArrowRight className="ml-1 inline" size={15} /></button>
+          <button onClick={() => setAuthOpen(true)} className="hidden rounded-full px-4 py-2 text-sm font-semibold text-[#173b68] hover:bg-blue-50 sm:inline-flex">Log in</button>
+          <button onClick={() => setAuthOpen(true)} className="rounded-full bg-[#173b68] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#102d52]">Get started <ArrowRight className="ml-1 inline" size={15} /></button>
         </div>
       </header>
 
@@ -42,8 +61,8 @@ function App() {
             FindBack connects people who have lost belongings with the people who have found them — making every reunion a little easier.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <button className="rounded-full bg-[#173b68] px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-950/10 transition hover:-translate-y-0.5 hover:bg-[#102d52]">I lost something <ArrowRight className="ml-2 inline" size={16} /></button>
-            <button className="rounded-full border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-[#173b68] transition hover:border-blue-200 hover:bg-blue-50">I found something</button>
+            <button onClick={() => setAuthOpen(true)} className="rounded-full bg-[#173b68] px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-950/10 transition hover:-translate-y-0.5 hover:bg-[#102d52]">I lost something <ArrowRight className="ml-2 inline" size={16} /></button>
+            <button onClick={() => setAuthOpen(true)} className="rounded-full border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-[#173b68] transition hover:border-blue-200 hover:bg-blue-50">I found something</button>
           </div>
           <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-slate-500">
             <span className="inline-flex items-center gap-2"><ShieldCheck size={17} className="text-emerald-600" /> Privacy-minded</span>
