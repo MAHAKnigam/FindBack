@@ -1,0 +1,18 @@
+# Dependencies and build output
+node_modules/
+dist/
+frontend/node_modules/
+frontend/dist/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
