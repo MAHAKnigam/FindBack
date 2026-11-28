@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import { supabase } from "../lib/supabase";
 
 type Conversation = {
@@ -68,7 +69,7 @@ export default function PrivateMessages({ userId }: { userId: string }) {
   useEffect(() => { void loadConversations(); }, [loadConversations]);
   useEffect(() => { void loadMessages(selectedId); }, [selectedId, loadMessages]);
 
-  async function sendMessage(event: React.FormEvent<HTMLFormElement>) {
+  async function sendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const text = draft.trim();
     if (!selectedId || !text || sending) return;
