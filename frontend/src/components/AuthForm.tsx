@@ -3,8 +3,8 @@ import { supabase } from "../lib/supabase";
 
 type AuthMode = "login" | "signup";
 
-export default function AuthForm({ onSuccess }: { onSuccess: () => void }) {
-  const [mode, setMode] = useState<AuthMode>("signup");
+export default function AuthForm({ onSuccess, initialMode = "signup" }: { onSuccess: () => void; initialMode?: AuthMode }) {
+  const [mode, setMode] = useState<AuthMode>(initialMode);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
