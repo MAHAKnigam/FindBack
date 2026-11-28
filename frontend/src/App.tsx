@@ -9,6 +9,7 @@ import BrowseItems from "./components/BrowseItems";
 import MyReports from "./components/MyReports";
 import MyMatches from "./components/MyMatches";
 import ClaimReview from "./components/ClaimReview";
+import Notifications from "./components/Notifications";
 
 const steps = [
   { number: "01", title: "Report an item", description: "Share a few details when something goes missing or when you find an item." },
@@ -33,6 +34,7 @@ function App() {
   const [myReportsOpen, setMyReportsOpen] = useState(false);
   const [matchesOpen, setMatchesOpen] = useState(false);
   const [claimReviewOpen, setClaimReviewOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
@@ -63,16 +65,16 @@ function App() {
           <p className="text-sm font-semibold text-[#4779ad]">SIGNED IN</p>
           <h2 className="mt-2 text-3xl font-bold">Welcome to FindBack</h2>
           <p className="mt-3 text-slate-600">You are signed in as {user.email}. Your account is ready.</p>
-          {!lostFormOpen && !foundFormOpen && !browseOpen && !myReportsOpen && !matchesOpen && !claimReviewOpen ? (
+          {!lostFormOpen && !foundFormOpen && !browseOpen && !myReportsOpen && !matchesOpen && !claimReviewOpen && !notificationsOpen ? (
             <>
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 <button onClick={() => setLostFormOpen(true)} className="rounded-2xl border border-slate-200 p-5 text-left transition hover:border-blue-300 hover:bg-blue-50"><h3 className="font-bold">Report a lost item</h3><p className="mt-2 text-sm text-slate-600">Create a report for something you have lost.</p><span className="mt-3 inline-block text-xs font-semibold text-[#315c8b]">Create report →</span></button>
                 <button onClick={() => setFoundFormOpen(true)} className="rounded-2xl border border-slate-200 p-5 text-left transition hover:border-emerald-300 hover:bg-emerald-50"><h3 className="font-bold">Report a found item</h3><p className="mt-2 text-sm text-slate-600">Help someone recover an item you found.</p><span className="mt-3 inline-block text-xs font-semibold text-[#315c8b]">Create report →</span></button>
               </div>
-              <div className="mt-6 flex flex-wrap gap-3"><button onClick={() => setBrowseOpen(true)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-[#315c8b]">Browse community reports</button><button onClick={() => setMyReportsOpen(true)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-[#315c8b]">My reports</button><button onClick={() => setMatchesOpen(true)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-[#315c8b]">Possible matches</button><button onClick={() => setClaimReviewOpen(true)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-[#315c8b]">Review ownership claims</button></div><button onClick={() => setDashboardOpen(false)} className="ml-4 mt-8 font-semibold text-[#315c8b]">Back to homepage</button>
+              <div className="mt-6 flex flex-wrap gap-3"><button onClick={() => setBrowseOpen(true)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-[#315c8b]">Browse community reports</button><button onClick={() => setMyReportsOpen(true)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-[#315c8b]">My reports</button><button onClick={() => setMatchesOpen(true)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-[#315c8b]">Possible matches</button><button onClick={() => setClaimReviewOpen(true)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-[#315c8b]">Review ownership claims</button><button onClick={() => setNotificationsOpen(true)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-[#315c8b]">Notifications</button></div><button onClick={() => setDashboardOpen(false)} className="ml-4 mt-8 font-semibold text-[#315c8b]">Back to homepage</button>
             </>
           ) : (
-            <>{lostFormOpen && <LostItemForm userId={user.id} onBack={() => setLostFormOpen(false)} />}{foundFormOpen && <FoundItemForm userId={user.id} onBack={() => setFoundFormOpen(false)} />}{browseOpen && <><button onClick={() => setBrowseOpen(false)} className="mt-6 font-semibold text-[#315c8b]">← Back to dashboard</button><BrowseItems /></>}{myReportsOpen && <><button onClick={() => setMyReportsOpen(false)} className="mt-6 font-semibold text-[#315c8b]">← Back to dashboard</button><MyReports userId={user.id} /></>}{matchesOpen && <><button onClick={() => setMatchesOpen(false)} className="mt-6 font-semibold text-[#315c8b]">← Back to dashboard</button><MyMatches userId={user.id} /></>}{claimReviewOpen && <><button onClick={() => setClaimReviewOpen(false)} className="mt-6 font-semibold text-[#315c8b]">← Back to dashboard</button><ClaimReview /></>}</>
+            <>{lostFormOpen && <LostItemForm userId={user.id} onBack={() => setLostFormOpen(false)} />}{foundFormOpen && <FoundItemForm userId={user.id} onBack={() => setFoundFormOpen(false)} />}{browseOpen && <><button onClick={() => setBrowseOpen(false)} className="mt-6 font-semibold text-[#315c8b]">← Back to dashboard</button><BrowseItems /></>}{myReportsOpen && <><button onClick={() => setMyReportsOpen(false)} className="mt-6 font-semibold text-[#315c8b]">← Back to dashboard</button><MyReports userId={user.id} /></>}{matchesOpen && <><button onClick={() => setMatchesOpen(false)} className="mt-6 font-semibold text-[#315c8b]">← Back to dashboard</button><MyMatches userId={user.id} /></>}{claimReviewOpen && <><button onClick={() => setClaimReviewOpen(false)} className="mt-6 font-semibold text-[#315c8b]">← Back to dashboard</button><ClaimReview /></>}{notificationsOpen && <><button onClick={() => setNotificationsOpen(false)} className="mt-6 font-semibold text-[#315c8b]">← Back to dashboard</button><Notifications userId={user.id} /></>}</>
           )}
         </section>
       </main>
