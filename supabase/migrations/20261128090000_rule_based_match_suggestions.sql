@@ -59,12 +59,12 @@ begin
         select count(*)::integer
           from (
             select distinct lower(token) as token
-              from regexp_split_to_table(coalesce(source_report.description, ''), '[^[:alnum:]]+') as token
+              from regexp_split_to_table(coalesce(source_report.description, ''), '[^[:alnum:]]+') as t(token)
              where length(token) >= 3
           ) source_tokens
          where exists (
            select 1
-             from regexp_split_to_table(coalesce(r.description, ''), '[^[:alnum:]]+') as candidate_token
+             from regexp_split_to_table(coalesce(r.description, ''), '[^[:alnum:]]+') as t(candidate_token)
             where lower(candidate_token) = source_tokens.token
          )
       ) as common_words,
@@ -72,7 +72,7 @@ begin
         select count(*)::integer
           from (
             select distinct lower(token) as token
-              from regexp_split_to_table(coalesce(source_report.description, ''), '[^[:alnum:]]+') as token
+              from regexp_split_to_table(coalesce(source_report.description, ''), '[^[:alnum:]]+') as t(token)
              where length(token) >= 3
           ) all_tokens
       ) as source_word_count
