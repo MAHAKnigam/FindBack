@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { MapPin, Search, RefreshCw } from "lucide-react";
+import { MapPin, Search, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
 type Report = {
@@ -18,6 +18,9 @@ export default function BrowseItems() {
   const [kind, setKind] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [expandedId, setExpandedId] = useState("");
+  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
+  const [photoLoadingId, setPhotoLoadingId] = useState("");
 
   async function loadReports() {
     setLoading(true);
@@ -34,6 +37,26 @@ export default function BrowseItems() {
   }
 
   useEffect(() => { void loadReports(); }, []);
+
+  async function toggleDetails(reportId: string) {
+    if (expandedId === reportId) {
+      setExpandedId("");
+      return;
+    }
+    setExpandedId(reportId);
+    if (photoUrls[reportId]) return;
+    setPhotoLoadingId(reportId);
+    const { data } = await supabase.from("report_images")
+      .select("image_path")
+      .eq("report_id", reportId)
+      .eq("is_primary", true)
+      .maybeSingle();
+    if (data?.image_path) {
+      const { data: signed } = await supabase.storage.from("item-images").createSignedUrl(data.image_path, 3600);
+      if (signed?.signedUrl) setPhotoUrls(current => ({ ...current, [reportId]: signed.signedUrl }));
+    }
+    setPhotoLoadingId("");
+  }
 
   const filtered = useMemo(() => reports.filter((report) => {
     const matchesKind = kind === "all" || report.report_type === kind;
@@ -57,6 +80,12 @@ export default function BrowseItems() {
             <div className="flex items-start justify-between gap-3"><div><span className={report.report_type === "lost" ? "rounded-full bg-rose-50 px-2.5 py-1 text-xs font-bold uppercase text-rose-700" : "rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold uppercase text-emerald-700"}>{report.report_type}</span><h3 className="mt-3 text-lg font-bold">{report.title}</h3></div><span className="text-xs text-slate-500">{report.categories?.name ?? "Other"}</span></div>
             <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{report.description}</p>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500"><span className="inline-flex items-center gap-1"><MapPin size={13}/>{report.locations?.area_name ?? "Area not specified"}</span><span>{new Date(report.date_lost_found + "T00:00:00").toLocaleDateString()}</span></div>
+            <button onClick={() => void toggleDetails(report.id)} className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#315c8b]">{expandedId === report.id ? "Hide details" : "View details"}{expandedId === report.id ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}</button>
+            {expandedId === report.id && <div className="mt-3 border-t border-slate-100 pt-3">
+              <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">{report.description}</p>
+              {photoLoadingId === report.id && <p className="mt-3 text-xs text-slate-500">Loading item photo…</p>}
+              {photoUrls[report.id] && <img src={photoUrls[report.id]} alt={report.title} className="mt-3 max-h-64 w-full rounded-xl object-contain bg-slate-50"/>}
+            </div>}
           </article>)}
         </div>
       )}
