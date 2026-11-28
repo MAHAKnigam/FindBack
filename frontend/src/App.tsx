@@ -30,7 +30,7 @@ function App() {
             >
               Close
             </button>
-            <AuthForm />
+            <AuthForm onSuccess={() => setAuthOpen(false)} />
           </div>
         </div>
       )}
