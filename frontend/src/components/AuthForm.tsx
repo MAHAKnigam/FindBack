@@ -3,7 +3,7 @@ import { supabase } from "../lib/supabase";
 
 type AuthMode = "login" | "signup";
 
-export default function AuthForm() {
+export default function AuthForm({ onSuccess }: { onSuccess: () => void }) {
   const [mode, setMode] = useState<AuthMode>("signup");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -35,6 +35,7 @@ export default function AuthForm() {
         });
         if (error) throw error;
         setMessage("You are signed in successfully.");
+        onSuccess();
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Something went wrong. Please try again.");
