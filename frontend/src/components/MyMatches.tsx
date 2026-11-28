@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import OwnershipClaimForm from "./OwnershipClaimForm";
 
 type OwnReport = { id: string; title: string; report_type: "lost" | "found"; status: string };
 type Suggestion = {
@@ -82,6 +83,7 @@ export default function MyMatches({ userId }: { userId: string }) {
         </div>
         <p className="mt-2 text-sm text-slate-600">{match.category_name ?? "Uncategorised"} · {match.area_name ?? "Area not specified"} · {new Date(match.matched_date + "T00:00:00").toLocaleDateString()}</p>
         {match.match_reasons.length > 0 && <ul className="mt-3 flex flex-wrap gap-2">{match.match_reasons.map(reason => <li key={reason} className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">{reason}</li>)}</ul>}
+        {selected?.report_type === "lost" && match.matched_type === "found" && <OwnershipClaimForm lostReportId={selected.id} foundReportId={match.matched_report_id} />}
       </article>)}
     </div>}
   </section>;
