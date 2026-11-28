@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
 import { ArrowRight, Search, ShieldCheck, MapPin, Clock3, HeartHandshake, PackageSearch } from "lucide-react";
 import AuthForm from "./components/AuthForm";
+import LostItemForm from "./components/LostItemForm";
 
 const steps = [
   { number: "01", title: "Report an item", description: "Share a few details when something goes missing or when you find an item." },
@@ -21,6 +22,7 @@ function App() {
   const [authMode, setAuthMode] = useState<"login" | "signup">("signup");
   const [user, setUser] = useState<User | null>(null);
   const [dashboardOpen, setDashboardOpen] = useState(false);
+  const [lostFormOpen, setLostFormOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
@@ -51,11 +53,17 @@ function App() {
           <p className="text-sm font-semibold text-[#4779ad]">SIGNED IN</p>
           <h2 className="mt-2 text-3xl font-bold">Welcome to FindBack</h2>
           <p className="mt-3 text-slate-600">You are signed in as {user.email}. Your account is ready.</p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 p-5"><h3 className="font-bold">Report a lost item</h3><p className="mt-2 text-sm text-slate-600">Create a report for something you have lost.</p><span className="mt-3 inline-block text-xs text-slate-400">Coming next</span></div>
-            <div className="rounded-2xl border border-slate-200 p-5"><h3 className="font-bold">Report a found item</h3><p className="mt-2 text-sm text-slate-600">Help someone recover an item you found.</p><span className="mt-3 inline-block text-xs text-slate-400">Coming next</span></div>
-          </div>
-          <button onClick={() => setDashboardOpen(false)} className="mt-8 font-semibold text-[#315c8b]">Back to homepage</button>
+          {!lostFormOpen ? (
+            <>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                <button onClick={() => setLostFormOpen(true)} className="rounded-2xl border border-slate-200 p-5 text-left transition hover:border-blue-300 hover:bg-blue-50"><h3 className="font-bold">Report a lost item</h3><p className="mt-2 text-sm text-slate-600">Create a report for something you have lost.</p><span className="mt-3 inline-block text-xs font-semibold text-[#315c8b]">Create report →</span></button>
+                <div className="rounded-2xl border border-slate-200 p-5"><h3 className="font-bold">Report a found item</h3><p className="mt-2 text-sm text-slate-600">Help someone recover an item you found.</p><span className="mt-3 inline-block text-xs text-slate-400">Coming next</span></div>
+              </div>
+              <button onClick={() => setDashboardOpen(false)} className="mt-8 font-semibold text-[#315c8b]">Back to homepage</button>
+            </>
+          ) : (
+            <LostItemForm userId={user.id} onBack={() => setLostFormOpen(false)} />
+          )}
         </section>
       </main>
     );
