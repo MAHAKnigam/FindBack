@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "../lib/supabase";
 
-type Category = { id: number; name: string };
+type Category = { id: string; name: string };
 
 export default function LostItemForm({ userId, onBack }: { userId: string; onBack: () => void }) {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -38,7 +38,7 @@ export default function LostItemForm({ userId, onBack }: { userId: string; onBac
         .from("item_reports")
         .insert({
           user_id: userId,
-          category_id: Number(categoryId),
+          category_id: categoryId,
           location_id: location.id,
           report_type: "lost",
           title: title.trim(),
