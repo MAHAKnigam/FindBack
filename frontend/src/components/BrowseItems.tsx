@@ -38,6 +38,26 @@ export default function BrowseItems() {
 
   useEffect(() => { void loadReports(); }, []);
 
+  async function reportListing(reportId: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setError("Please sign in before reporting a listing.");
+      return;
+    }
+    const reason = window.prompt("Why are you reporting this listing? (At least 5 characters)");
+    if (reason === null) return;
+    if (reason.trim().length < 5 || reason.length > 1000) {
+      setError("Please enter a reason between 5 and 1000 characters.");
+      return;
+    }
+    const { error: reportError } = await supabase.rpc("submit_moderation_report", {
+      p_item_report_id: reportId,
+      p_reason: reason.trim(),
+    });
+    if (reportError) setError(reportError.message);
+    else window.alert("Thank you. Your report has been sent to the moderation team.");
+  }
+
   async function toggleDetails(reportId: string) {
     if (expandedId === reportId) {
       setExpandedId("");
@@ -81,7 +101,7 @@ export default function BrowseItems() {
             <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{report.description}</p>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500"><span className="inline-flex items-center gap-1"><MapPin size={13}/>{report.locations?.area_name ?? "Area not specified"}</span><span>{new Date(report.date_lost_found + "T00:00:00").toLocaleDateString()}</span></div>
             <button onClick={() => void toggleDetails(report.id)} className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#315c8b]">{expandedId === report.id ? "Hide details" : "View details"}{expandedId === report.id ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}</button>
-            {expandedId === report.id && <div className="mt-3 border-t border-slate-100 pt-3">
+            <button onClick={() => void reportListing(report.id)} className="mt-4 ml-4 text-sm font-semibold text-rose-700">Report listing</button>\n            {expandedId === report.id && <div className="mt-3 border-t border-slate-100 pt-3">
               <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">{report.description}</p>
               {photoLoadingId === report.id && <p className="mt-3 text-xs text-slate-500">Loading item photo…</p>}
               {photoUrls[report.id] && <img src={photoUrls[report.id]} alt={report.title} className="mt-3 max-h-64 w-full rounded-xl object-contain bg-slate-50"/>}
