@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
+import { supabase } from "./lib/supabase";
 import { ArrowRight, Search, ShieldCheck, MapPin, Clock3, HeartHandshake, PackageSearch } from "lucide-react";
 import AuthForm from "./components/AuthForm";
 
@@ -16,6 +18,48 @@ const features = [
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "signup">("signup");
+  const [user, setUser] = useState<User | null>(null);
+  const [dashboardOpen, setDashboardOpen] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  function openAuth(mode: "login" | "signup") {
+    setAuthMode(mode);
+    setAuthOpen(true);
+  }
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    setDashboardOpen(false);
+  }
+
+  if (user && dashboardOpen) {
+    return (
+      <main className="min-h-screen bg-[#f7f9fc] px-6 py-8 text-[#17243b]">
+        <header className="mx-auto flex max-w-5xl items-center justify-between">
+          <h1 className="text-2xl font-bold">FindBack dashboard</h1>
+          <button onClick={handleSignOut} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold">Sign out</button>
+        </header>
+        <section className="mx-auto mt-10 max-w-5xl rounded-3xl bg-white p-8 shadow-sm">
+          <p className="text-sm font-semibold text-[#4779ad]">SIGNED IN</p>
+          <h2 className="mt-2 text-3xl font-bold">Welcome to FindBack</h2>
+          <p className="mt-3 text-slate-600">You are signed in as {user.email}. Your account is ready.</p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 p-5"><h3 className="font-bold">Report a lost item</h3><p className="mt-2 text-sm text-slate-600">Create a report for something you have lost.</p><span className="mt-3 inline-block text-xs text-slate-400">Coming next</span></div>
+            <div className="rounded-2xl border border-slate-200 p-5"><h3 className="font-bold">Report a found item</h3><p className="mt-2 text-sm text-slate-600">Help someone recover an item you found.</p><span className="mt-3 inline-block text-xs text-slate-400">Coming next</span></div>
+          </div>
+          <button onClick={() => setDashboardOpen(false)} className="mt-8 font-semibold text-[#315c8b]">Back to homepage</button>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#f7f9fc] text-[#17243b]">
@@ -30,7 +74,7 @@ function App() {
             >
               Close
             </button>
-            <AuthForm onSuccess={() => setAuthOpen(false)} />
+            <AuthForm initialMode={authMode} onSuccess={() => setAuthOpen(false)} />
           </div>
         </div>
       )}
@@ -44,8 +88,17 @@ function App() {
           <a className="transition hover:text-[#173b68]" href="#features">Why FindBack</a>
         </nav>
         <div className="flex items-center gap-3">
-          <button onClick={() => setAuthOpen(true)} className="hidden rounded-full px-4 py-2 text-sm font-semibold text-[#173b68] hover:bg-blue-50 sm:inline-flex">Log in</button>
-          <button onClick={() => setAuthOpen(true)} className="rounded-full bg-[#173b68] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#102d52]">Get started <ArrowRight className="ml-1 inline" size={15} /></button>
+          {user ? (
+            <>
+              <button onClick={() => setDashboardOpen(true)} className="rounded-full px-4 py-2 text-sm font-semibold text-[#173b68]">Dashboard</button>
+              <button onClick={handleSignOut} className="rounded-full bg-[#173b68] px-5 py-2.5 text-sm font-semibold text-white">Sign out</button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => openAuth("login")} className="hidden rounded-full px-4 py-2 text-sm font-semibold text-[#173b68] hover:bg-blue-50 sm:inline-flex">Log in</button>
+              <button onClick={() => openAuth("signup")} className="rounded-full bg-[#173b68] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#102d52]">Get started <ArrowRight className="ml-1 inline" size={15} /></button>
+            </>
+          )}
         </div>
       </header>
 
@@ -61,8 +114,8 @@ function App() {
             FindBack connects people who have lost belongings with the people who have found them — making every reunion a little easier.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <button onClick={() => setAuthOpen(true)} className="rounded-full bg-[#173b68] px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-950/10 transition hover:-translate-y-0.5 hover:bg-[#102d52]">I lost something <ArrowRight className="ml-2 inline" size={16} /></button>
-            <button onClick={() => setAuthOpen(true)} className="rounded-full border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-[#173b68] transition hover:border-blue-200 hover:bg-blue-50">I found something</button>
+            <button onClick={() => user ? setDashboardOpen(true) : openAuth("signup")} className="rounded-full bg-[#173b68] px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-950/10 transition hover:-translate-y-0.5 hover:bg-[#102d52]">I lost something <ArrowRight className="ml-2 inline" size={16} /></button>
+            <button onClick={() => user ? setDashboardOpen(true) : openAuth("signup")} className="rounded-full border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-[#173b68] transition hover:border-blue-200 hover:bg-blue-50">I found something</button>
           </div>
           <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-slate-500">
             <span className="inline-flex items-center gap-2"><ShieldCheck size={17} className="text-emerald-600" /> Privacy-minded</span>
